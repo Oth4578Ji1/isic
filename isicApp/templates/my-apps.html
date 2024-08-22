@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.user_type|capfirst }} Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edu-dash.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-e.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Etudiant</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'edu-dash' %}" class="active">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'profile' %}">
+                            <i class='bx bx-user icon' ></i>
+                            <span class="text nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'submit-general-application' %}">
+                            <i class='bx bx-export icon' ></i>
+                            <span class="text nav-text">Candidater</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'my_apps' %}">
+                            <i class='bx bx-dock-right icon'></i>
+                            <span class="text nav-text">Mes Candidatures</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Mes Candidatures</h2>
+                </div>
+                <div class="card-body" style="margin-top: 20px;">
+                    <div class="application-details">
+                        <p style="font-size: 14px;color: #707070;">Voici la liste de vos candidatures récemment soumises. Cliquez sur une candidature pour voir les détails et apporter des modifications si nécessaire.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="cards" id="application-cards">
+                <!-- Application cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+    <script>
+        // Sidebar toggle functionality
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+        function fetchUserApplications() {
+            $.ajax({
+                url: '/api/user-applications/',  // You'll need to create this API endpoint
+                method: 'GET',
+                success: function(data) {
+                    const cardsContainer = $('#application-cards');
+                    cardsContainer.empty();
+                    data.forEach(function(application, index) {
+                        const cardClass = ['red', 'blue', 'green', 'white', 'cold'][index % 5];
+                        const card = `
+                            <div class="card ${cardClass}" data-application-id="${application.id}">
+                                <div class="card-content">
+                                    <p class="tip">Candidature pour ${application.competition_type}</p>
+                                    <div class="application-details">
+                                        <p class="second-text">Candidature pour ${application.competition_field} soumise le ${application.submitted_date}</p>
+                                        <p class="second-text">${application.status}</p>
+                                    </div>
+                                </div>
+                                <p class="timestamp" data-added="${application.submitted_date}"></p>
+                            </div>
+                        `;
+                        cardsContainer.append(card);
+                    });
+                    updateTimestamps();
+                }
+            });
+        }
+
+        $(document).on('click', '#application-cards .card', function() {
+            const applicationId = $(this).data('application-id');
+            window.location.href = `/application-details/${applicationId}/`;
+        });
+
+        $(document).ready(function() {
+            fetchUserApplications();
+        });
+    </script>
+</body>
+</html>

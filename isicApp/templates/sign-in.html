@@ -1,0 +1,232 @@
+<!--sign-up.html-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-In</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .logo
+{
+    font-size: 25px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    opacity: 0;
+    animation: slideRight 1s ease forwards;
+}
+        .navbar a {
+    display: inline-block;
+    font-size: 18px;
+    margin: 0 20px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 500;
+    opacity: 0;
+    animation: slideTop 1s ease forwards;
+    animation-delay: calc(.2s * var(--i));
+}
+.navbar a:hover{
+    color: #00349D;
+}
+.navbar a.active{
+    color: #00349D;
+} 
+        .btn {
+    display: inline-block;
+    padding: 10px 28px;
+    background: #00349D;
+    border: 2px solid #00349D;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    font-size: 16px;
+    color: #eaeaea;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-weight: 600;
+    transition: .5s;
+    opacity: 0;
+    animation: slideTop 1s ease forwards;
+    animation-delay: 2s;
+}
+.btn:hover {
+    background: transparent;
+    color: #00349D;
+}
+    .card {
+        width: 500px;
+        height: 400px;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    opacity: 0;
+    animation: slideRight 1s ease forwards;
+    animation-delay: 1.3s;
+    
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-weight: bold;
+}
+
+.form-group label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+}
+
+.signup {
+    display: inline-block;
+    width: 200px;
+    height: 45px;
+    padding: 10px 20px;
+    background: #00349D;
+    border: 2px solid #00349D;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    font-size: 16px;
+    color: #eaeaea;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-weight: 600;
+    transition: .5s;
+}
+.signup:hover {
+    background: transparent;
+    color: #00349D;
+}
+
+.login{
+    font-size: .9em;
+    color: #00349D;
+    text-align: center;
+    font-weight: 500;
+    margin: 25px 0 10px;
+}
+
+.login p a {
+    color: #00349D;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login p a:hover {
+    text-decoration: underline;
+}
+.card .icon-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: #00349D;
+    font-size: 2em;
+    color: #eaeaea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+    </style>
+</head>
+
+
+<body>
+    <header class="header">
+        <a href="{% url 'home' %}" class="logo">ISIC.</a>
+        <nav class="navbar">
+            <a href="{% url 'home' %}" style="--i:1;">Home</a>
+            <a href="#" style="--i:2;">About</a>
+            <a href="#" style="--i:3;">Featured</a>
+            <a href="#" style="--i:4;">Contact</a>
+            <a href="{% url 'sign-up' %}" style="--i:5;">Sign Up</a>
+            <a href="{% url 'sign-in' %}" style="--i:6;" class="active">Sign In</a>
+        </nav>
+    </header>
+
+    <section class="home">
+        <div class="container mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="text-center mb-4">Sign In</h1>
+                    <form id="signinForm" method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <button type="submit" class="signup">Sign-In</button>
+                                <div id="errorMessages" class="mt-3 text-danger"></div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <div class="login">
+                                    <p class="text-center mt-3">Don't have an account? <a class="login-link" href="{% url 'sign-up' %}">Sign-Up</a> or <a class="login-link" href="{% url 'password-reset' %}">Reset password</a> if you forget it</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        $(document).ready(function() {
+            $('#signinForm').on('submit', function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                
+                $.ajax({
+                    url: '{% url "sign-in" %}',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = response.redirect_url;
+                        } else {
+                            $('#errorMessages').html(response.errors.join('<br>'));
+                        }
+                    },
+                    error: function() {
+                        $('#errorMessages').html('An error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

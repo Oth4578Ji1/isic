@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-r.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Responsable</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'res-dash' %}">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'applications' %}">
+                            <i class='bx bx-book icon' ></i>
+                            <span class="text nav-text">Candidatures</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications-res' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'add-competition' %}">
+                            <i class='bx bx-book-add icon' ></i>
+                            <span class="text nav-text">Concours</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'overview' %}">
+                            <i class='bx bx-objects-horizontal-left icon'></i>
+                            <span class="text nav-text">Aperçu</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">      </div>
+        <div class="flex-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Détails de Candidature</h2>
+                        <p class="card-description">revoir les détails de la demande.</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="grid">
+                            <div class="section">
+                                <h3>Informations personnelles :</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="name">Nom et Prénom</label>
+                                        <input id="name" value="{{ application.student.first_name }} {{ application.student.last_name }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="email">Email</label>
+                                        <input id="email" value="{{ application.student.email }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="phone">N° de Téléphone</label>
+                                        <input id="phone" value="{{ application.student.phone }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="dob">Date de Naissance</label>
+                                        <input id="dob" value="{{ application.student.date_of_birth|date:'d-m-Y' }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="cin">CIN</label>
+                                        <input id="cin" value="{{ application.student.CIN }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="place-of-birth">Lieu de naissance</label>
+                                        <input id="place-of-birth" value="{{ application.student.place_of_birth }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="address">Adresse</label>
+                                        <input id="address" value="{{ application.student.address }}" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h3>Parcours Universitaire :</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="CNE">Code Massar / CNE</label>
+                                        <input id="CNE" value="{{ application.CNE }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="baccalaureate_category">Type de Baccalauréat</label>
+                                        <input id="baccalaureate_category" value="{{ application.baccalaureate_category }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="baccalaureate_grade">Note de Baccalauréat</label>
+                                        <input id="baccalaureate_grade" value="{{ application.baccalaureate_grade }}" disabled>
+                                    </div>
+                                    {% if application.competition.get_type_display == 'Master' %}
+                                    <div class="input-group">
+                                        <label for="diploma_category">Type de diplôme</label>
+                                        <input id="diploma_category" value="{{ application.diploma_category }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="diploma_year">Année de diplôme</label>
+                                        <input id="diploma_year" value="{{ application.diploma_year }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="diploma_grade">Mention de diplôme</label>
+                                        <input id="diploma_grade" value="{{ application.diploma_grade }}" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h3>Les Notes :</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="semester_1_grade">Moyenne 1ère Semestre</label>
+                                        <input id="semester_1_grade" value="{{ application.semester_1_grade }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_2_grade">Moyenne 2ème Semestre</label>
+                                        <input id="semester_2_grade" value="{{ application.semester_2_grade }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_3_grade">Moyenne 3ème Semestre</label>
+                                        <input id="semester_3_grade" value="{{ application.semester_3_grade }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_4_grade">Moyenne 4ème Semestre</label>
+                                        <input id="semester_4_grade" value="{{ application.semester_4_grade }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_5_grade">Moyenne 5ème Semestre</label>
+                                        <input id="semester_5_grade" value="{{ application.semester_5_grade }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="license_field_name">Nom de la filière de licence</label>
+                                        <input id="license_field_name" value="{{ application.license_field_name }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="université">Université</label>
+                                        <input id="université" value="{{ application.université }}" disabled>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="section">
+                                <h3>Informations de Candidature :</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="program">Type</label>
+                                        <input id="program" value="{{ application.competition.get_type_display }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="term">Field</label>
+                                        <input id="term" value="{{ application.competition.field }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="application-date">Déposés-le </label>
+                                        <input id="application-date" value="{{application.applied_at|date:'d-m-Y' }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="application-date">Langue</label>
+                                        <input id="application-date" value="{{application.language}}" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-legend">
+                        {% if application.status == 'Arrivée' %}
+                        <div class="status-item">
+                            <div class="status-dot blue"></div>
+                            <div style="color: #707070;">Arrivée</div>
+                        </div>
+                        {% elif application.status == 'En cours' %}
+                        <div class="status-item">
+                            <div class="status-dot yellow"></div>
+                            <div style="color: #707070;">En cours</div>
+                        </div>
+                        {% elif application.status == 'Rejetée' %}
+                        <div class="status-item">
+                            <div class="status-dot red"></div>
+                            <div style="color: #707070;">Rejetée</div>
+                        </div>
+                        {% elif application.status == 'Accepté' %}
+                        <div class="status-item">
+                            <div class="status-dot green"></div>
+                            <div style="color: #707070;">Accepté</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit"><a href="{% url 'applications' %}" class="annuller">Voir Tous les Candidatures</a></button>
+                        <button><a href="{% url 'edit_application' application.id %}" class="annuller">Modifier Statut</a></button>
+                        <button type="button" id="backButton" style="float: left;">
+                            <i class='bx bxs-left-arrow' style="padding-right: 10px;font-size: 12px;"></i>
+                            <span class="annuller">Retour</span>
+                        </button>
+                    </div>
+                </div>
+        </div>
+    </section>
+    <script>
+        // Sidebar toggle functionality
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.getElementById('backButton');
+
+            backButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    const editButton = document.getElementById('editButton');
+    const statusSelect = document.getElementById('status');
+
+    editButton.addEventListener('click', function() {
+        alert('Edit functionality not implemented in this demo.');
+    });
+
+    statusSelect.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        console.log('Status changed to:', selectedStatus);
+        // Here you can add logic to handle status changes
+    });
+});
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('status');
+            const form = document.querySelector('form');
+
+            statusSelect.addEventListener('change', function() {
+                const selectedStatus = this.value;
+                console.log('Status changed to:', selectedStatus);
+            });
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Application status updated successfully!');
+                        window.location.href = "{% url 'applications' %}";
+                    } else {
+                        alert('Error updating application status. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

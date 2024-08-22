@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.user_type|capfirst }} Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edu-dash.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-e.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Etudiant</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'edu-dash' %}" class="active">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'profile' %}">
+                            <i class='bx bx-user icon' ></i>
+                            <span class="text nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'submit-general-application' %}">
+                            <i class='bx bx-export icon' ></i>
+                            <span class="text nav-text">Candidater</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'my_apps' %}">
+                            <i class='bx bx-dock-right icon'></i>
+                            <span class="text nav-text">Mes Candidatures</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">Dashboard</div>
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Statut de votre derniere candidature</h2>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-step"></div>
+                    <div class="progress-step"></div>
+                    <div class="progress-step"></div>
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                {% if latest_application.status == 'Rejetée' %}
+                    <i class="bx bxs-x-circle status-icon" style="color: #f44336; font-size: 15px;float: right;"></i>
+                {% endif %}
+                <div class="status-info">
+                    <div id="statusDot" class="status-dot"></div>
+                    <span id="statusText">
+                        {% if latest_application %}
+                            {{ latest_application.status }}
+                        {% else %}
+                            No application submitted
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="card-body" style="margin-top: 20px;">
+                    {% if latest_application.status == 'Rejetée' %}
+                    <div class="application-details">
+                        {% if latest_application.competition.get_type_display == 'License' %}
+                        <p style="font-size: 14px;color: #f44336;">Nous excusons, M. {{ user.last_name }} {{ user.first_name }}. Votre candidature au concours {{ latest_application.competition.get_type_display }} a été rejetée par l'administration de l'ISIC. La raison peut être que vous avez saisi des informations incorrectes ou que vous n'êtes pas éligible pour accéder à l'institut. Ne perdez pas et réessayez lors de la prochaine concours.</p>
+                        {% else %}
+                        <p style="font-size: 14px;color: #f44336;">Nous excusons, M. {{ user.last_name }} {{ user.first_name }}. Votre candidature au concours {{ latest_application.competition.get_type_display }} en {{ latest_application.competition.field }} a été rejetée par l'administration de l'ISIC. La raison peut être que vous avez saisi des informations incorrectes ou que vous n'êtes pas éligible pour accéder à l'institut. Ne perdez pas et réessayez lors de la prochaine concours.</p>
+                        {% endif %}
+                    </div>
+                    {% elif latest_application.status == 'Arrivée' %}
+                    <div class="application-details">
+                        {% if latest_application.competition.get_type_display == 'License' %}
+                        <p style="font-size: 14px;color: #707070;">Votre candidature au concours {{ latest_application.competition.get_type_display }} est arrivée et attend d'être examinée.</p>
+                        {% else %}
+                        <p style="font-size: 14px;color: #707070;">Votre candidature au concours {{ latest_application.competition.get_type_display }} en {{ latest_application.competition.field }} est arrivée et attend d'être examinée.</p>
+                        {% endif %}
+                    </div>
+                    {% elif latest_application.status == 'Accepté' %}
+                    <div class="application-details">
+                        {% if latest_application.competition.get_type_display == 'License' %}
+                        <p style="font-size: 14px;color: #4caf50;">Félicitations : Votre candidature au concours {{ latest_application.competition.get_type_display }} est Accepté.</p>
+                        {% else %}
+                        <p style="font-size: 14px;color: #4caf50;">Félicitations : Votre candidature au concours {{ latest_application.competition.get_type_display }} en {{ latest_application.competition.field }} est Accepté.</p>
+                        {% endif %}
+                    </div>
+                    {% elif latest_application.status == 'En cours' %}
+                    <div class="application-details">
+                        {% if latest_application.competition.get_type_display == 'License' %}
+                        <p style="font-size: 14px;color: #ffc107; text-shadow: 2px 4px 4px rgba(0, 0, 0, 0.0);">Votre candidature au concours {{ latest_application.competition.get_type_display }} est En cours d'examiner.</p>
+                        {% else %}
+                        <p style="font-size: 14px;color: #ffc107; text-shadow: 2px 4px 4px rgba(0, 0, 0, 0.0);">Votre candidature au concours {{ latest_application.competition.get_type_display }} en {{ latest_application.competition.field }} est En cours d'examiner.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="cards" id="competition-cards">
+            </div>
+        </div>
+    </section>
+    <div id="applicationData" 
+         data-has-application="{% if latest_application %}true{% else %}false{% endif %}"
+         data-status="{% if latest_application %}{{ latest_application.status }}{% endif %}"
+         data-status-colors="{{ status_colors|safe }}">
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progressBar');
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            const applicationData = document.getElementById('applicationData');
+
+            const hasApplication = applicationData.dataset.hasApplication === 'true';
+            const status = applicationData.dataset.status;
+            const statusColors = JSON.parse(applicationData.dataset.statusColors.replace(/'/g, '"'));
+
+            if (hasApplication) {
+                const statusConfig = {
+                    'Arrivée': { width: '33.33%', color: statusColors['Arrivée'] },
+                    'En cours': { width: '66.66%', color: statusColors['En cours'] },
+                    'Accepté': { width: '100%', color: statusColors['Accepté'] },
+                    'Rejetée': { width: '100%', color: statusColors['Rejetée'] }
+                };
+
+                const config = statusConfig[status] || { width: '0%', color: 'gray' };
+
+                progressBar.style.width = config.width;
+                progressBar.style.backgroundColor = config.color;
+                statusDot.style.backgroundColor = config.color;
+                statusText.textContent = `${status}`;
+            } else {
+                progressBar.style.width = '0%';
+                progressBar.style.backgroundColor = 'gray';
+                statusDot.style.backgroundColor = 'gray';
+                statusText.textContent = 'Status: No application submitted';
+            }
+        });
+        // Sidebar toggle functionality
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+        function getTimeDifference(dateAdded) {
+    if (!dateAdded) return 'Unknown';
+    const now = new Date();
+    const added = new Date(dateAdded);
+    if (isNaN(added.getTime())) return 'Invalid date';
+    const diff = Math.floor((now - added) / 1000); // difference in seconds
+
+    if (diff < 60) return `${diff} seconds ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+    return `${Math.floor(diff / 86400)} days ago`;
+}
+
+function updateTimestamps() {
+    const timestamps = document.querySelectorAll('.timestamp');
+    timestamps.forEach(timestamp => {
+        const dateAdded = timestamp.getAttribute('data-added');
+        timestamp.textContent = getTimeDifference(dateAdded);
+    });
+}
+
+// Update timestamps every minute
+setInterval(updateTimestamps, 60000);
+
+// Initial update
+updateTimestamps();
+function fetchCompetitionAnnouncements() {
+    $.ajax({
+        url: '/api/latest-competitions/',
+        method: 'GET',
+        success: function(data) {
+            const cardsContainer = $('#competition-cards');
+            cardsContainer.empty();
+            data.forEach(function(competition, index) {
+                const cardClass = ['red', 'blue', 'green', 'white', 'cold'][index % 5];
+                const card = `
+                    <div class="card ${cardClass}" data-competition-id="${competition.id}">
+                        <div class="card-content">
+                            <div class="competition-details">
+                                <p class="tip">${competition.type}'s</p>
+                                ${competition.type === 'Master' 
+                                    ? `<p class="second-text">Un nouvelle concours de ${competition.type} en ${competition.field} a été ajouté, soumettez votre candidature avant ${competition.deadline}.</p>`
+                                    : `<p class="second-text">Un nouvelle concours de ${competition.type} a été ajouté, soumettez votre candidature avant ${competition.deadline}.</p>`
+                                }
+                            </div>
+                        </div>
+                        <p class="timestamp" data-added="${competition.created_at || ''}"></p>
+                    </div>
+                `;
+                cardsContainer.append(card);
+            });
+            updateTimestamps();
+        }
+    });
+}
+
+        // Handle card click
+        $(document).on('click', '#competition-cards .card', function() {
+            const competitionId = $(this).data('competition-id');
+            window.location.href = `/add-application/${competitionId}/`;
+        });
+
+        // Call the function when the page loads
+        $(document).ready(function() {
+            fetchCompetitionAnnouncements();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.user_type|capfirst }} Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/add-app.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.modal-footer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.close-modal {
+  background-color: #0044CD; /* Blue background */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: transparent;
+}
+
+.close-modal:hover {
+  background-color: transparent;
+  color: #0044CD;
+}
+
+.text-green-500 {
+  color: #707070;
+  margin-bottom: 14px;
+  margin-top: 14px;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-muted-foreground {
+  color: #707070;
+}
+
+/* Center all content */
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+.text-2xl.font-bold {
+  color: #707070; 
+  margin-top: 14px;
+}
+    </style>
+</head>
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-e.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Etudiant</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'edu-dash' %}" class="active">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'profile' %}">
+                            <i class='bx bx-user icon' ></i>
+                            <span class="text nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'submit-general-application' %}">
+                            <i class='bx bx-export icon' ></i>
+                            <span class="text nav-text">Candidater</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'my_apps' %}">
+                            <i class='bx bx-dock-right icon'></i>
+                            <span class="text nav-text">Mes Candidatures</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="flex-container">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">{{ competition.get_type_display }}'s Candidature</h2>
+                    {% if competition.get_type_display == 'Master' %}
+                    <p class="card-description">Veuillez remplir le formulaire de demande pour {{ competition.get_type_display }} in {{ competition.field }}.</p>
+                    {% else %}
+                    <p class="card-description">Veuillez remplir le formulaire de demande pour {{ competition.get_type_display }}.</p>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <form id="application-form" method="post">
+                        {% csrf_token %}
+                        <div class="grid">
+                            <div class="section">
+                                <h3>Informations personnelles:</h3>
+                                
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="first_name">Prénom</label>
+                                        <input id="first_name" name="first_name">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="last_name">Nom</label>
+                                        <input id="last_name" name="last_name">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="address">Adresse</label>
+                                        <input id="address" name="address">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="date_of_birth">Date de naissance</label>
+                                        <input id="date_of_birth" type="date" name="date_of_birth">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="email">Email</label>
+                                        <input id="email" name="email">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="phone">N° de téléphone</label>
+                                        <input id="phone" name="phone">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="CIN">CIN</label>
+                                        <input id="CIN" name="CIN">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="place-of-birth">Lieu de naissance</label>
+                                        <input id="place-of-birth" name="place_of_birth">
+                                    </div>
+                                </div>
+                                <button type="button" id="auto-fill-btn" class="btn btn-secondary" style="font-size: 13px;padding: 5px 10px;background-color: transparent;color: #0044CD;border: 1px solid #007bff;border-radius: 4px;cursor: pointer;transition: all 0.3s ease;margin-top: 15px;margin-bottom: 15px;position: relative;;">Auto-fill Infos personnelles</button>
+                            </div>
+                            <div class="section">
+                                <h3>Parcours universitaire:</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="CNE">Code Massar / CNE</label>
+                                        <input id="CNE" name="CNE" required>
+                                    </div>
+                                    <div class="select-group">
+                                        <label for="baccalaureate_category">Type de Baccalauréat:</label>
+                                        <select id="baccalaureate_category" name="baccalaureate_category" required>
+                                            <option value="">Selectiounnez le Type de Baccalauréat</option>
+                                            <option value="Sciences">Sciences</option>
+                                            <option value="Littéraire">Littéraire</option>
+                                            <option value="Economie/Gestion">Economie/Gestion</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="baccalaureate_grade">Note de Baccalauréat</label>
+                                        <input type="number" id="baccalaureate_grade" name="baccalaureate_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    {% if competition.get_type_display == 'Master' %}
+                                    <div class="select-group">
+                                        <label for="diploma_category">Type de diplôme:</label>
+                                        <select id="diploma_category" name="diploma_category" required>
+                                            <option value="">Selectiounnez le Type de diplôme</option>
+                                            <option value="Diplome d`ISIC">Diplôme d'ISIC</option>
+                                            <option value="License Fondamentale">License Fondamentale</option>
+                                            <option value="License Professionnelle">License Professionnelle</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="diploma_year">Année de diplôme</label>
+                                        <input type="number" id="diploma_year" name="diploma_year" min="1900" max="2099" step="1" required>
+                                    </div>
+                                    <div class="select-group">
+                                        <label for="diploma_grade">Mention du diplôme</label>
+                                        <select id="diploma_grade" name="diploma_grade" required>
+                                            <option value="">Selectiounnez Mention du diplôme</option>
+                                            <option value="Passable">Passable</option>
+                                            <option value="A-Bien">Assez Bien</option>
+                                            <option value="Bien">Bien</option>
+                                            <option value="T-Bien">Très Bien</option>
+                                        </select>
+                                    </div>
+                                    {% endif %}
+                                    <div class="select-group">
+                                        <label for="troisieme_lng">3ème Langue</label>
+                                        <select id="troisieme_lng" name="troisieme_lng">
+                                            <option value="">Selectiounnez 3ème Langue</option>
+                                            <option value="Anglais">Anglais</option>
+                                            <option value="Espagnole">Espagnole</option>
+                                            <option value="Allemand">Allemand</option>
+                                            <option value="Autre">Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section">
+                                {% if competition.get_type_display == 'Master' %}
+                                <h3>Les notes:</h3>
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="semester_1_grade">Moyenne du 1er semestre</label>
+                                        <input type="number" id="semester_1_grade" name="semester_1_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_2_grade">Moyenne du 2ème semestre</label>
+                                        <input type="number" id="semester_2_grade" name="semester_2_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_3_grade">Moyenne du 3ème semestre</label>
+                                        <input type="number" id="semester_3_grade" name="semester_3_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_4_grade">Moyenne du 4ème semestre</label>
+                                        <input type="number" id="semester_4_grade" name="semester_4_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_5_grade">Moyenne du 5ème semestre</label>
+                                        <input type="number" id="semester_5_grade" name="semester_5_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="semester_6_grade">Moyenne du 6ème semestre</label>
+                                        <input type="number" id="semester_6_grade" name="semester_6_grade" step="0.01" min="0" max="20" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="license_field_name">Nom de la filière de licence</label>
+                                        <input id="license_field_name" name="license_field_name">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="université">Université</label>
+                                        <input id="université" name="université">
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="section">
+                                <h3>Details de concours:</h3>
+                                <div class="grid-3">
+                                    <div class="select-group">
+                                        <label for="language">Langue</label>
+                                        <select id="language" name="language" required>
+                                            <option value="">Selectiounnez la langue de concours</option>
+                                            <option value="Anglais">English</option>
+                                            <option value="Francais">French</option>
+                                            <option value="Arabe">Arabic</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Envoyer</button>
+                            <button type="button" class="btn btn-primary" style="float: left;" id="backButton">
+                                <span class="annuller">Annuller</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Sidebar toggle functionality
+const body = document.querySelector('body');
+const sidebar = body.querySelector('nav');
+const toggle = body.querySelector(".toggle");
+
+toggle.addEventListener("click", () => {
+    sidebar.classList.toggle("close");
+});
+
+// Form submission handling
+$(document).ready(function() {
+    $('#application-form').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "add_application" competition.id %}',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    const successModal = document.getElementById('successModal');
+                    const modalMessage = document.getElementById('modalMessage');
+                    modalMessage.textContent = 'Votre Candidature envoyer avec succès!';
+                    successModal.style.display = 'flex';
+                } else {
+                    const failedModal = document.getElementById('failedModal');
+                    const modalMessage = document.getElementById('modalMessage');
+                    modalMessage.textContent = 'Error: ' + response.error;
+                    failedModal.style.display = 'flex';
+                }
+            },
+            error: function() {
+                const failedModal = document.getElementById('failedModal');
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.textContent = 'An error occurred. Please try again.';
+                failedModal.style.display = 'flex';
+            }
+        });
+    });
+
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const successModal = document.getElementById('successModal');
+            const failedModal = document.getElementById('failedModal');
+            successModal.style.display = 'none';
+            failedModal.style.display = 'none';
+            window.location.href = '{% url "edu-dash" %}';
+        });
+    });
+
+    // Get all the modals
+    const modals = document.querySelectorAll('.modal');
+
+    // Add a click event listener to the document
+    document.addEventListener('click', (event) => {
+        // Check if the clicked element is outside the modal
+        if (!event.target.closest('.modal-content')) {
+            // Close all the modals
+            modals.forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+    });
+
+    $('#auto-fill-btn').on('click', function() {
+        $.ajax({
+            type: 'GET',
+            url: '{% url "get_user_info" %}',
+            success: function(response) {
+                $('#first_name').val(response.first_name);
+                $('#last_name').val(response.last_name);
+                $('#address').val(response.address);
+                $('#date_of_birth').val(response.date_of_birth);
+                $('#email').val(response.email);
+                $('#phone').val(response.phone);
+                $('#CIN').val(response.CIN);
+                $('#place-of-birth').val(response.place_of_birth);
+            },
+            error: function() {
+                alert('An error occurred while fetching user information.');
+            }
+        });
+    });
+
+    const backButton = document.getElementById('backButton');
+    backButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        window.history.back();
+    });
+});
+    </script>
+    <div id="successModal" class="modal">
+        <div class="modal-content sm:max-w-[400px]">
+          <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+            <div class="space-y-2">
+              <h3 class="text-2xl font-bold">Succès!</h3>
+              <p class="text-muted-foreground" id="modalMessage"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="close-modal">Fermer</button>
+          </div>
+        </div>
+    </div>
+    <div id="failedModal" class="modal">
+        <div class="modal-content sm:max-w-[400px]">
+          <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+            <div class="space-y-2">
+              <h3 class="text-2xl font-bold">Échoué!</h3>
+              <p class="text-muted-foreground" id="modalMessage"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="close-modal">Fermer</button>
+          </div>
+        </div>
+    </div>
+</body>
+</html>

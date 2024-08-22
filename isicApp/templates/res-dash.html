@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ... (previous styles remain the same) ... */
+
+        /* Updated chart container styles */
+        .chart-container {
+            position: relative;
+            height: 200px; /* Reduced from 300px */
+            width: 100%;
+            max-width: 300px; /* Added max-width to constrain the chart */
+            margin: 10px auto; /* Centered the chart and reduced vertical margin */
+        }
+        #pieChart {
+            filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.1)); /* Reduced shadow for smaller chart */
+        }
+    </style>
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-r.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Responsable</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'res-dash' %}">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'applications' %}">
+                            <i class='bx bx-book icon' ></i>
+                            <span class="text nav-text">Candidatures</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications-res' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'add-competition' %}">
+                            <i class='bx bx-book-add icon' ></i>
+                            <span class="text nav-text">Concours</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'overview' %}">
+                            <i class='bx bx-objects-horizontal-left icon'></i>
+                            <span class="text nav-text">Aperçu</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">Dashboard</div>
+        <main>
+            <div class="container">
+                <div class="card-grid">
+                    <div class="card">
+                        <h2 class="card-title">Candidatures En Attente</h2>
+                        <p class="card-description">Candidatures en attente de votre examen</p>
+                        <div class="card-content">{{ pending_applications }}</div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title">Candidatures Traitées</h2>
+                        <p class="card-description">Candidatures qui ont été examinées</p>
+                        <div class="card-content">{{ processed_applications }}</div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title">Type Candidature</h2>
+                        <p class="card-description">Répartition des types d'applications</p>
+                        <div class="chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2 class="card-title">Candidatures</h2>
+                    <p class="card-description">Toutes les candidatures en attente et raitées</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidat</th>
+                                <th>Type</th>
+                                <th>Filière</th>
+                                <th>Déposés-le</th>
+                                <th>Statut</th>
+                                <th><span class="sr-only"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in all_applications %}
+                            <tr>
+                                <td>
+                                    <div class="font-medium">{{ application.student.first_name }} {{ application.student.last_name }}</div>
+                                    <div class="text-muted-foreground text-sm">{{ application.student.email }}</div>
+                                </td>
+                                <td>{{ application.competition.get_type_display }}</td>
+                                <td>{{ application.competition.field }}</td>
+                                <td>{{ application.applied_at|date:'d-m-Y' }}</td>
+                                <td><span class="badge badge-secondary">{{ application.status }}</span></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button onclick="toggleDropdown(this)" class="btn btn-ghost"><i class='bx bxs-pencil'></i></button>
+                                        <div class="dropdown-content">
+                                            <a href="{% url 'view_app' application.id %}" class="to-p">Détails</a>
+                                            <a href="{% url 'edit_application' application.id %}" class="cen-ter">Modifier</a>
+                                            <a href="{% url 'overview' %}" class="bot-tom">Vérifier</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
+    <script id="application-types-data" type="application/json">
+        {{ application_types|safe }}
+    </script>
+    <script>
+        // Sidebar toggle functionality
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+
+        // Dropdown functionality
+        function toggleDropdown(button) {
+            button.nextElementSibling.classList.toggle("show");
+        }
+
+        // Close dropdowns when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn-ghost')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+        const colorPalette = [
+            '#0044CD',
+            '#002b80',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40'
+        ];
+
+        function createDonutChartWithZValues() {
+    const applicationTypesElement = document.getElementById('application-types-data');
+    let applicationTypes = [];
+    
+    if (applicationTypesElement) {
+        try {
+            applicationTypes = JSON.parse(applicationTypesElement.textContent);
+        } catch (error) {
+            console.error('Error parsing application types data:', error);
+            return;
+        }
+    } else {
+        console.error('Application types data element not found');
+        return;
+    }
+
+    const labels = applicationTypes.map(item => {
+        switch(item.competition__type) {
+            case 'L': return 'License';
+            case 'M': return 'Master';
+            default: return item.competition__type;
+        }
+    });
+    const data = applicationTypes.map(item => item.count);
+    const zValues = applicationTypes.map(item => item.zValue || 0); // Assuming zValue is available in the dataset
+
+    const ctx = document.getElementById('pieChart').getContext('2d');
+
+    // Modern color palette
+    const modernColors = [
+        '#002b80',
+        '#0044CD',
+        'rgba(255, 206, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)',
+        'rgba(153, 102, 255, 0.8)',
+        'rgba(255, 159, 64, 0.8)'
+    ];
+
+    // Create gradient backgrounds
+    const gradients = modernColors.map(color => {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, color.replace('0.8', '0.5'));
+        return gradient;
+    });
+
+    new Chart(ctx, {
+        type: 'doughnut', // Doughnut chart type
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: gradients,
+                borderColor: 'transparent',
+                borderWidth: 2,
+                hoverOffset: 10, // Varies the slice length when hovered
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '0%', // Adjust this to control the size of the donut hole
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#707070',
+                        font: {
+                            size: 10,
+                            family: "'Poppins', sans-serif"
+                        },
+                        padding: 10,
+                        usePointStyle: true,
+                        generateLabels: (chart) => {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => ({
+                                    text: `${label}: ${data.datasets[0].data[i]}`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    strokeStyle: data.datasets[0].borderColor,
+                                    lineWidth: data.datasets[0].borderWidth,
+                                    hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                                    index: i
+                                }));
+                            }
+                            return [];
+                        }
+                    },
+                    title: {
+                        color: '#707070',
+                        display: true,
+                        text: ' ',
+                        font: {
+                            weight: 'bold',
+                            family: "'Poppins', sans-serif"
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.formattedValue;
+                            const total = context.dataset.data.reduce((acc, data) => acc + data, 0);
+                            const percentage = ((context.raw / total) * 100).toFixed(1);
+                            return `${label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        },
+        plugins: [{
+            id: 'customSliceOffsets',
+            beforeDraw: (chart) => {
+                const meta = chart.getDatasetMeta(0);
+                meta.data.forEach((element, index) => {
+                    element.startAngle += zValues[index] * Math.PI / 180; // Adjust the slice length
+                });
+            }
+        }]
+    });
+}
+
+document.addEventListener('DOMContentLoaded', createDonutChartWithZValues);
+
+
+    </script>
+</body>
+</html>

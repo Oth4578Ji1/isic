@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-Up</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .logo
+{
+    font-size: 25px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 600;
+    opacity: 0;
+    animation: slideRight 1s ease forwards;
+}
+        .navbar a {
+    display: inline-block;
+    font-size: 18px;
+    margin: 0 20px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 500;
+    opacity: 0;
+    animation: slideTop 1s ease forwards;
+    animation-delay: calc(.2s * var(--i));
+}
+.navbar a:hover{
+    color: #00349D;
+}
+.navbar a.active{
+    color: #00349D;
+} 
+        .btn {
+    display: inline-block;
+    padding: 10px 28px;
+    background: #00349D;
+    border: 2px solid #00349D;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    font-size: 16px;
+    color: #eaeaea;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-weight: 600;
+    transition: .5s;
+    opacity: 0;
+    animation: slideTop 1s ease forwards;
+    animation-delay: 2s;
+}
+.btn:hover {
+    background: transparent;
+    color: #00349D;
+}
+    .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    opacity: 0;
+    animation: slideTop 1s ease forwards;
+    animation-delay: 1s;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-weight: bold;
+}
+
+.form-group label {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+}
+
+.signup {
+    display: inline-block;
+    width: 200px;
+    height: 45px;
+    padding: 10px 20px;
+    background: #00349D;
+    border: 2px solid #00349D;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    font-size: 16px;
+    color: #eaeaea;
+    text-decoration: none;
+    letter-spacing: 1px;
+    font-weight: 600;
+    transition: .5s;
+}
+.signup:hover {
+    background: transparent;
+    color: #00349D;
+}
+
+.login{
+    font-size: .9em;
+    color: #00349D;
+    text-align: center;
+    font-weight: 500;
+    margin: 25px 0 10px;
+}
+
+.login p a {
+    color: #00349D;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login p a:hover {
+    text-decoration: underline;
+}
+.card .icon-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: #00349D;
+    font-size: 2em;
+    color: #eaeaea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-bottom-left-radius: 20px;
+    cursor: pointer;
+    z-index: 1;
+}
+.body{
+    background: #eaeaea;
+}
+    </style>
+</head>
+
+
+<body>
+    <header class="header">
+        <a href="{% url 'home' %}" class="logo">ISIC.</a>
+        <nav class="navbar">
+            <a href="{% url 'home' %}" style="--i:1;">Home</a>
+            <a href="#" style="--i:2;">About</a>
+            <a href="#" style="--i:3;">Featured</a>
+            <a href="#" style="--i:4;">Contact</a>
+            <a href="{% url 'sign-up' %}" style="--i:5;" class="active">Sign Up</a>
+            <a href="{% url 'sign-in' %}" style="--i:6;">Sign In</a>
+        </nav>
+
+    </header>
+
+    <section class="home">
+        <div class="container mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="text-center mb-4">Create Account</h1>
+                    <form id="signupForm" method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                                <div class="invalid-feedback">Please enter a username.</div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="password1">Password</label>
+                                <input type="password" class="form-control" id="password1" name="password1" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="password2">Confirm Password</label>
+                                <input type="password" class="form-control" id="password2" name="password2" required>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="CIN">CIN</label>
+                                <input type="text" class="form-control" id="CIN" name="CIN" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="phone">Telephone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+    
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label for="date_of_birth">Birth Date</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label for="place_of_birth">Place of Birth</label>
+                                <input type="text" class="form-control" id="place_of_birth" name="place_of_birth" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <button type="submit" class="signup">Sign-Up</button>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <div class="login">
+                                    <p class="text-center mt-3">Already have an account? <a class="login-link" href="{% url 'sign-in' %}">Sign-In</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="errorMessages" class="mt-3 text-danger"></div>
+                    <div id="successMessage" class="mt-3 text-success" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        $(document).ready(function() {
+            $('#signupForm').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "sign-up" %}',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#successMessage').text('Registration successful! Redirecting...').show();
+                            setTimeout(function() {
+                                window.location.href = response.redirect_url;
+                            }, 2000);
+                        } else {
+                            $('#errorMessages').html(response.errors.join('<br>'));
+                        }
+                    },
+                    error: function() {
+                        $('#errorMessages').text('An error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

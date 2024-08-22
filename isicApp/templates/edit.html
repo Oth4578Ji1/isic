@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/edit.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.modal-footer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.close-modal {
+  background-color: #0044CD; /* Blue background */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: transparent;
+}
+
+.close-modal:hover {
+  background-color: transparent;
+  color: #0044CD;
+}
+
+.text-green-500 {
+  color: #707070;
+  margin-bottom: 14px;
+  margin-top: 14px;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-muted-foreground {
+  color: #707070;
+}
+
+/* Center all content */
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+.text-2xl.font-bold {
+  color: #707070; 
+  margin-top: 14px;
+}
+    </style>
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-r.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Responsable</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'res-dash' %}">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'applications' %}">
+                            <i class='bx bx-book icon' ></i>
+                            <span class="text nav-text">Candidatures</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications-res' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'add-competition' %}">
+                            <i class='bx bx-book-add icon' ></i>
+                            <span class="text nav-text">Concours</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'overview' %}">
+                            <i class='bx bx-objects-horizontal-left icon'></i>
+                            <span class="text nav-text">Aperçu</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">      </div>
+        <div class="flex-container">
+                <div class="card">
+                    <form method="post" action="{% url 'edit_application' application.id %}">
+                        {% csrf_token %}
+                    <div class="card-header">
+                        <h2 class="card-title">Modifier Statut</h2>
+                        <p class="card-description">Modifier Statut de candidature envouyer par le candidat {{ application.student.last_name }} {{ application.student.first_name }}.</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="grid">
+                            <div class="section">
+                                <div class="grid-3">
+                                    <div class="input-group">
+                                        <label for="name">Nom complet</label>
+                                        <input id="name" value="{{ application.student.first_name }} {{ application.student.last_name }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="cin">CIN</label>
+                                        <input id="cin" value="{{ application.student.CIN }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="program">Type de Concours</label>
+                                        <input id="program" value="{{ application.competition.get_type_display }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="term">Filiere</label>
+                                        <input id="term" value="{{ application.competition.field }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="term">Langue</label>
+                                        <input id="term" value="{{ application.language }}" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="status">Statut</label>
+                                        <select name="status" id="status" class="form-control">
+                                            {% for status in status_choices %}
+                                                <option value="{{ status }}" {% if status == application.status %}selected{% endif %}>
+                                                    {{ status }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-legend">
+                        {% if application.status == 'Arrivée' %}
+                        <div class="status-item">
+                            <div class="status-dot blue"></div>
+                            <div style="color: #707070;">Arrivée</div>
+                        </div>
+                        {% elif application.status == 'En cours' %}
+                        <div class="status-item">
+                            <div class="status-dot yellow"></div>
+                            <div style="color: #707070;">En cours</div>
+                        </div>
+                        {% elif application.status == 'Rejetée' %}
+                        <div class="status-item">
+                            <div class="status-dot red"></div>
+                            <div style="color: #707070;">Rejetée</div>
+                        </div>
+                        {% elif application.status == 'Accepté' %}
+                        <div class="status-item">
+                            <div class="status-dot green"></div>
+                            <div style="color: #707070;">Accepté</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="alpha">Confirmer</button>
+                        <button type="button" id="backButton">
+                            <span class="annuller">Annuller</span>
+                        </button>
+                    </div>
+                    </form>
+                </div>
+        </div>
+    </section>
+    <script>
+        // Sidebar toggle functionality
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+    const editButton = document.getElementById('editButton');
+    const statusSelect = document.getElementById('status');
+
+    editButton.addEventListener('click', function() {
+        alert('Edit functionality not implemented in this demo.');
+    });
+
+    statusSelect.addEventListener('change', function() {
+        const selectedStatus = this.value;
+        console.log('Status changed to:', selectedStatus);
+        // Here you can add logic to handle status changes
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const backButton = document.getElementById('backButton');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const successModal = document.getElementById('successModal');
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.textContent = 'Statut de la candidature mis à jour avec succès!';
+                successModal.style.display = 'flex';
+            } else {
+                const failedModal = document.getElementById('failedModal');
+                const modalMessage = document.getElementById('modalMessage');
+                modalMessage.textContent = 'Error updating application status. Please try again.';
+                failedModal.style.display = 'flex';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const failedModal = document.getElementById('failedModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = 'An error occurred. Please try again.';
+            failedModal.style.display = 'flex';
+        });
+    });
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const successModal = document.getElementById('successModal');
+            const failedModal = document.getElementById('failedModal');
+            successModal.style.display = 'none';
+            failedModal.style.display = 'none';
+            window.location.href = '{% url "applications" %}';
+        });
+    });
+
+    // Get all the modals
+    const modals = document.querySelectorAll('.modal');
+
+    // Add a click event listener to the document
+    document.addEventListener('click', (event) => {
+        // Check if the clicked element is outside the modal
+        if (!event.target.closest('.modal-content')) {
+            // Close all the modals
+            modals.forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+    });
+
+    backButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        window.history.back();
+    });
+});
+    </script>
+    <div id="successModal" class="modal">
+        <div class="modal-content sm:max-w-[400px]">
+          <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+            <div class="space-y-2">
+              <h3 class="text-2xl font-bold">Succès!</h3>
+              <p class="text-muted-foreground" id="modalMessage"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="close-modal">Fermer</button>
+          </div>
+        </div>
+    </div>
+    <div id="failedModal" class="modal">
+        <div class="modal-content sm:max-w-[400px]">
+          <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+            <div class="space-y-2">
+              <h3 class="text-2xl font-bold">Échoué!</h3>
+              <p class="text-muted-foreground" id="modalMessage"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="close-modal">Fermer</button>
+          </div>
+        </div>
+    </div>
+</body>
+</html>

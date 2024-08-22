@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.user_type|capfirst }} Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <style>
+        .modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.modal-footer {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.close-modal {
+  background-color: #0044CD; /* Blue background */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: transparent;
+}
+
+.close-modal:hover {
+  background-color: transparent;
+  color: #0044CD;
+}
+
+.text-green-500 {
+  color: #707070;
+  margin-bottom: 14px;
+  margin-top: 14px;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-muted-foreground {
+  color: #707070;
+}
+
+/* Center all content */
+.flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+.text-2xl.font-bold {
+  color: #707070; 
+  margin-top: 14px;
+}
+    </style>
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-e.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Etudiant</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'edu-dash' %}" class="active">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'profile' %}">
+                            <i class='bx bx-user icon' ></i>
+                            <span class="text nav-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'submit-general-application' %}">
+                            <i class='bx bx-export icon' ></i>
+                            <span class="text nav-text">Candidater</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'my_apps' %}">
+                            <i class='bx bx-dock-right icon'></i>
+                            <span class="text nav-text">Mes Candidatures</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="container">
+            <h1>Profile</h1>
+            <p>Cette section pour verifier votre profile et modifier votre infos personelle.</p>
+            <div class="card">
+                <form id="profile-form" method="POST">
+                    {% csrf_token %}
+                    <div class="card-content">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="id_first_name">First Name</label>
+                                <input type="text" id="id_first_name" name="first_name" value="{{ user.first_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="id_last_name">Last Name</label>
+                                <input type="text" id="id_last_name" name="last_name" value="{{ user.last_name }}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">Email</label>
+                            <input type="email" id="id_email" name="email" value="{{ user.email }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_CIN">CIN</label>
+                            <input type="text" id="id_CIN" name="CIN" value="{{ user.CIN }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_phone">Phone</label>
+                            <input type="text" id="id_phone" name="phone" value="{{ user.phone }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_address">Address</label>
+                            <input type="text" id="id_address" name="address" value="{{ user.address }}">
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="id_date_of_birth">Date of Birth</label>
+                                <input type="date" id="id_date_of_birth" name="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="id_place_of_birth">Place of Birth</label>
+                                <input type="text" id="id_place_of_birth" name="place_of_birth" value="{{ user.place_of_birth }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <button type="submit" class="btn" id="save-changes">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <script>
+       document.addEventListener('DOMContentLoaded', function() {
+    const body = document.querySelector('body'),
+    sidebar = body.querySelector('nav'),
+    toggle = body.querySelector(".toggle");
+
+    toggle.addEventListener("click" , () => {
+        sidebar.classList.toggle("close");
+    });
+
+    const form = document.getElementById('profile-form');
+    const successModal = document.getElementById('successModal');
+    const failedModal = document.getElementById('failedModal');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        
+        fetch("{% url 'profile' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('successModal').querySelector('#modalMessage').textContent = 'Votre profil a été mis à jour avec succès !';
+                successModal.style.display = 'flex';
+            } else {
+                document.getElementById('failedModal').querySelector('#modalMessage').textContent = 'Error updating profile: ' + (data.error || 'Unknown error occurred');
+                failedModal.style.display = 'flex';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('failedModal').querySelector('#modalMessage').textContent = 'An error occurred while updating your profile. Please try again.';
+            failedModal.style.display = 'flex';
+        });
+    });
+
+    // Close modal when clicking the close button
+    document.querySelectorAll('.close-modal').forEach(button => {
+        button.addEventListener('click', function() {
+            successModal.style.display = 'none';
+            failedModal.style.display = 'none';
+        });
+    });
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        if (event.target == successModal || event.target == failedModal) {
+            successModal.style.display = 'none';
+            failedModal.style.display = 'none';
+        }
+    });
+});
+    </script>
+<div id="successModal" class="modal">
+    <div class="modal-content sm:max-w-[400px]">
+      <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+        <div class="space-y-2">
+          <h3 class="text-2xl font-bold">Succès!</h3>
+          <p class="text-muted-foreground" id="modalMessage"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="close-modal">Fermer</button>
+      </div>
+    </div>
+</div>
+<div id="failedModal" class="modal">
+    <div class="modal-content sm:max-w-[400px]">
+      <div class="flex flex-col items-center justify-center gap-4 px-8 py-4">
+        <div class="space-y-2">
+          <h3 class="text-2xl font-bold">Échoué!</h3>
+          <p class="text-muted-foreground" id="modalMessage"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="close-modal">Fermer</button>
+      </div>
+    </div>
+</div>
+</body>
+</html>

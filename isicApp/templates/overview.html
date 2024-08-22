@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/overview.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-r.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Responsable</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'res-dash' %}">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'applications' %}">
+                            <i class='bx bx-book icon' ></i>
+                            <span class="text nav-text">Candidatures</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications-res' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'add-competition' %}">
+                            <i class='bx bx-book-add icon' ></i>
+                            <span class="text nav-text">Concours</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'overview' %}">
+                            <i class='bx bx-objects-horizontal-left icon'></i>
+                            <span class="text nav-text">Aperçu</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">Aperçu</div>
+        <div class="container">
+            <div class="grid">
+                <div>
+                    <h1>Les Concours Lancés</h1>
+                    <div id="competitionList" class="competition-list"></div>
+                </div>
+                <div>
+                    <h1>Candidatures au Master</h1>
+                    <div class="competition-card">
+                        <canvas id="applicationsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+const body = document.querySelector('body');
+const sidebar = body.querySelector('nav');
+const toggle = body.querySelector(".toggle");
+
+toggle.addEventListener("click", () => {
+    sidebar.classList.toggle("close");
+});
+
+// Dropdown functionality
+function toggleDropdown(button) {
+    button.nextElementSibling.classList.toggle("show");
+}
+
+// Close dropdowns when clicking outside
+window.onclick = function(event) {
+    if (!event.target.matches('.btn-ghost')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+function getFullCompetitionType(type) {
+    const typeMap = {
+        'L': 'License\'s',
+        'M': 'Master\'s',
+    };
+    return typeMap[type] || type;
+}
+
+function renderCompetitions(competitions) {
+    const competitionList = document.getElementById('competitionList');
+    competitionList.innerHTML = '';
+
+    competitions.forEach(competition => {
+        const competitionCard = document.createElement('div');
+        competitionCard.className = 'competition-card';
+        competitionCard.innerHTML = `
+            <h3 class="competition-title">${getFullCompetitionType(competition.type)} Competition</h3>
+            <p class="competition-info" style="font-size: 16px;">${new Date(competition.created_at).toLocaleDateString()}</p>
+            <p class="competition-info">Concours de ${getFullCompetitionType(competition.type)} en "${competition.field || 'License'}" traitee les demandes des candidatures avant ${competition.deadline || 'License'}</p>
+        `;
+        competitionList.appendChild(competitionCard);
+    });
+
+    if (competitions.length === 0) {
+        competitionList.innerHTML = '<p>No competitions available.</p>';
+    }
+}
+
+function renderChart(data) {
+    const filteredData = data.filter(item => item.competition__field);  // Filter out null fields
+    const ctx = document.getElementById('applicationsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: filteredData.map(item => item.competition__field),
+            datasets: [{
+                label: 'Number of Applications',
+                data: filteredData.map(item => item.count),
+                backgroundColor: ['#0044CD', '#002b80', '#1966ff'],
+                borderColor: 'transparent',
+                borderWidth: 1,
+                hoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Poppins, sans-serif',
+                            size: 12
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    min: 0,
+                    max: Math.max(...filteredData.map(item => item.count)) * 1.1,
+                    ticks: {
+                        font: {
+                            family: 'Poppins, sans-serif'
+                        },
+                        display: false
+                    }
+                }
+            },
+        }
+    });
+}
+
+// Fetch competition data and render
+fetch('/api/competitions/')
+    .then(response => response.json())
+    .then(data => {
+        console.log('Fetched competitions:', data); // Add this line for debugging
+        renderCompetitions(data);
+    })
+    .catch(error => console.error('Error fetching competitions:', error));
+
+// Fetch application statistics and render chart
+fetch('/api/application-stats/')
+    .then(response => response.json())
+    .then(data => renderChart(data))
+    .catch(error => console.error('Error fetching application stats:', error));
+    </script>
+    </body>
+</html>

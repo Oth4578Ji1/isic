@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidatures</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/applications.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="{% static 'images/isic-icon.png' %}" type="image/x-icon">
+</head>
+
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'images/letter-r.png' %}" alt="logo">
+                </span>
+                <div class="text header-text">
+                    <span class="name">M.{{ user.last_name }}</span>
+                    <span class="profession">Responsable</span>
+                </div>
+            </div>
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="{% url 'res-dash' %}">
+                            <i class='bx bx-home-alt icon' ></i>
+                            <span class="text nav-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'applications' %}">
+                            <i class='bx bx-book icon' ></i>
+                            <span class="text nav-text">Candidatures</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'notifications-res' %}">
+                            <i class='bx bx-bell icon' ></i>
+                            <span class="text nav-text">Notifications</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'add-competition' %}">
+                            <i class='bx bx-book-add icon' ></i>
+                            <span class="text nav-text">Concours</span>
+                        </a>
+                    </li>
+                    <li class="nav-link">
+                        <a href="{% url 'overview' %}">
+                            <i class='bx bx-objects-horizontal-left icon'></i>
+                            <span class="text nav-text">Aperçu</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <li class="">
+                    <a href="{% url 'sign-out' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Déconnexion</span>
+                    </a>
+                </li>
+            </div>
+        </div>
+    </nav>
+    <section class="home">
+        <div class="text">Candidatures</div>
+        <main>
+            <div class="container">
+                <div class="card">
+                    <h2 class="card-title">Candidatures</h2>
+                    <p class="card-description">Tous les demandes au concours</p>
+                    <div class="controls">
+                        <div class="dropdown">
+                            <div style="margin-bottom: 10px;">
+                               <button id="filterBtn" class="dropdown-toggle">
+                                  <i class='bx bx-filter-alt' ></i>Filter
+                               </button>
+                            </div>
+                            <div id="filterMenu" class="dropdown-menu">
+                                <h3>Filter par:</h3>
+                                <div class="filter-group">
+                                    <h5>Type</h5>
+                                    <label><input type="radio" name="grade" value="null" checked> Tous</label>
+                                    <label><input type="radio" name="grade" value="Master"> Master</label>
+                                    <label><input type="radio" name="grade" value="License"> License</label>
+                                </div>
+                                <div class="filter-group">
+                                    <h5>Filière</h5>
+                                    <label><input type="radio" name="attendance" value="null" checked> Tous</label>
+                                    <label><input type="radio" name="attendance" value="Communication Politique"> Communication-P</label>
+                                    <label><input type="radio" name="attendance" value="Journalisme Sportif"> Journalisme Sportif</label>
+                                    <label><input type="radio" name="attendance" value="Innovation et Production de Contenus Audiovisuels et Numérique"> IPC-A&N</label>
+                                </div>
+                                <div class="filter-group">
+                                    <h5>Statut</h5>
+                                    <label><input type="radio" name="behavior" value="null" checked> Tous</label>
+                                    <label><input type="radio" name="behavior" value="Arrivée"> Arrivée</label>
+                                    <label><input type="radio" name="behavior" value="En cours"> En cours</label>
+                                    <label><input type="radio" name="behavior" value="Accepté"> Accepté</label>
+                                    <label><input type="radio" name="behavior" value="Rejetée"> Rejetée</label>
+                                </div>
+                                <div class="filter-group">
+                                    <h5>Language</h5>
+                                    <label><input type="radio" name="language" value="null" checked> Tous</label>
+                                    <label><input type="radio" name="language" value="Anglais"> Anglais</label>
+                                    <label><input type="radio" name="language" value="Francais"> Francais</label>
+                                    <label><input type="radio" name="language" value="Arabe"> Arabe</label>
+                                </div>
+                                <div>
+                                    <button class="btn" id="filterBtnApply">Appliquer</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="waiter">
+                            <button class="alpha">
+                                <a href="{% url 'export_excel' %}" id="exportBtn" class="export-link">Exporter Excel</a>
+                            </button>
+                        </div>
+                        <div class="waiter">
+                            <button class="alpha">
+                                <a href="{% url 'export_pdf' %}" id="exportBtn" class="export-link">Exporter Les Acceptés PDF</a>
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidat</th>
+                                <th>CIN</th>
+                                <th>CNE</th>
+                                <th>T-BAC</th>
+                                <th>NT-BAC</th>
+                                <th>Diplôme</th>
+                                <th>Mention-D</th>
+                                <th>Type</th>
+                                <th>Filière</th>
+                                <th>Statut</th>
+                                <th>Langue</th>
+                                <th><span class="sr-only">      </span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in item %}
+                            <tr>
+                                <td>
+                                    <div class="font-medium">{{ i.student.first_name }} {{ i.student.last_name }}</div>
+                                    <div class="text-muted-foreground text-sm">{{ i.student.email }}</div>
+                                </td>
+                                <td>{{ i.student.CIN }}</td>
+                                <td>{{ i.CNE }}</td>
+                                <td>{{ i.baccalaureate_category }}</td>
+                                <td>{{ i.baccalaureate_grade }}</td>
+                                <td>{{ i.diploma_category }}</td>
+                                <td>{{ i.diploma_grade }}</td>
+                                <td>{{ i.competition.get_type_display }}</td>
+                                {% if i.competition.field == 'Innovation et Production de Contenus Audiovisuels et Numérique' %}
+                                    <td>IPC-A&N</td>
+                                {% else %}
+                                <td>{{ i.competition.field }}</td>
+                                {% endif %}
+                                <td><span class="badge badge-secondary">{{ i.status }}</span></td>
+                                <td>{{ i.language }}</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button onclick="toggleDropdown(this)" class="btn btn-ghost"><i class='bx bxs-pencil'></i></button>
+                                        <div class="dropdown-content">
+                                            <a href="{% url 'view_app' i.id %}" class="to-p">Détails</a>
+                                            <a href="{% url 'edit_application' i.id %}" class="cen-ter">Modifier</a>
+                                            <a href="{% url 'overview' %}" class="bot-tom">Vérifier</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script>// DOM Elements
+        const body = document.querySelector('body');
+        const sidebar = body.querySelector('nav');
+        const toggle = body.querySelector(".toggle");
+        const filterForm = document.getElementById('filterMenu');
+        const applyFilterBtn = document.getElementById('filterBtnApply');
+        const filterBtn = document.getElementById('filterBtn');
+        const tableBody = document.querySelector('table tbody');
+        
+        // Store the original table data
+        let originalData = [];
+        let currentFilteredData = [];
+        
+        // Sidebar toggle functionality
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+        
+        // Function to toggle dropdown
+        function toggleDropdown(button) {
+            button.nextElementSibling.classList.toggle("show");
+        }
+        
+        // Function to update the export link with current filter parameters
+        function updateExportLink() {
+            const exportBtn = document.getElementById('exportBtn');
+            const type = document.querySelector('input[name="grade"]:checked').value;
+            const field = document.querySelector('input[name="attendance"]:checked').value;
+            const status = document.querySelector('input[name="behavior"]:checked').value;
+            const language = document.querySelector('input[name="language"]:checked').value;
+        
+            const params = new URLSearchParams({
+                type: type,
+                field: field,
+                status: status,
+                language: language
+            });
+        
+            exportBtn.href = `{% url 'export_excel' %}?${params.toString()}`;
+        }
+        
+        // Function to apply filters
+        function applyFilters() {
+    console.log("Applying filters...");
+    const type = document.querySelector('input[name="grade"]:checked').value;
+    const field = document.querySelector('input[name="attendance"]:checked').value;
+    const status = document.querySelector('input[name="behavior"]:checked').value;
+    const language = document.querySelector('input[name="language"]:checked').value;
+
+    console.log(`Filters: type=${type}, field=${field}, status=${status}, language=${language}`);
+
+    const filteredData = originalData.filter(row => {
+        const rowData = row.element.querySelectorAll('td');
+        console.log("Row data:", Array.from(rowData).map(td => td.textContent));
+        
+        const typeMatch = type === 'null' || rowData[7].textContent.trim() === type;
+        const fieldMatch = field === 'null' || rowData[8].textContent.trim().includes(field);
+        const statusMatch = status === 'null' || rowData[9].textContent.trim() === status;
+        const languageMatch = language === 'null' || rowData[10].textContent.trim() === language;
+
+        console.log(`Matches: type=${typeMatch}, field=${fieldMatch}, status=${statusMatch}, language=${language}`);
+
+        return typeMatch && fieldMatch && statusMatch && languageMatch;
+    });
+
+    console.log(`Filtered data length: ${filteredData.length}`);
+
+    // Clear the table
+    tableBody.innerHTML = '';
+
+    // Append filtered rows
+    filteredData.forEach(row => tableBody.appendChild(row.element.cloneNode(true)));
+
+    // Update the currentFilteredData
+    currentFilteredData = filteredData.map(row => row.element);
+
+    // Close the filter menu
+    filterMenu.classList.remove('show');
+
+    // Update the export link
+    updateExportLink();
+}
+        
+        // Event Listeners
+        filterBtn.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the click from immediately closing the menu
+            filterMenu.classList.toggle('show');
+        });
+        
+        applyFilterBtn.addEventListener('click', applyFilters);
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!filterBtn.contains(event.target) && !filterMenu.contains(event.target)) {
+                filterMenu.classList.remove('show');
+            }
+        
+            if (!event.target.matches('.btn-ghost')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        });
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+    originalData = Array.from(tableBody.querySelectorAll('tr')).map(row => ({
+        element: row,
+        text: row.textContent.toLowerCase()
+    }));
+    console.log("Original data loaded:", originalData.length, "rows");
+    updateExportLink();
+});
+    </script>
+</body>
+</html>
